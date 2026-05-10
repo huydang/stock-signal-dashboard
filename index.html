@@ -118,6 +118,22 @@ main {
 .badge-blue  { background: #E6F1FB; color: #185FA5; }
 .badge-gray  { background: #F1EFE8; color: #5F5E5A; }
 
+.panel-refresh-btn {
+  margin-left: 6px;
+  border: none;
+  background: transparent;
+  color: #bdbdbd;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  border-radius: 6px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.panel-refresh-btn:hover { color: #8f8f8f; }
+.panel-refresh-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.panel-refresh-icon { display: inline-block; }
+
 .panel-body { flex: 1; }
 
 .feed-item {
@@ -220,6 +236,9 @@ footer {
         <div class="panel-source">HN · energylivenews · renewablesnow</div>
       </div>
       <span class="badge badge-gray" id="b-grid">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="grid" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-grid"></div>
   </div>
@@ -232,6 +251,9 @@ footer {
         <div class="panel-source">HN · Ars Technica · The Verge</div>
       </div>
       <span class="badge badge-gray" id="b-hyper">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="hyper" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-hyper"></div>
   </div>
@@ -244,6 +266,9 @@ footer {
         <div class="panel-source">HN · MarketWatch · Seeking Alpha</div>
       </div>
       <span class="badge badge-gray" id="b-stocks">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="stocks" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-stocks"></div>
   </div>
@@ -256,6 +281,9 @@ footer {
         <div class="panel-source">HN · MarketWatch · Seeking Alpha</div>
       </div>
       <span class="badge badge-gray" id="b-semi">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="semi" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-semi"></div>
   </div>
@@ -268,6 +296,9 @@ footer {
         <div class="panel-source">HN · energy-storage.news · renewablesnow</div>
       </div>
       <span class="badge badge-gray" id="b-commodity">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="commodity" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-commodity"></div>
   </div>
@@ -280,6 +311,9 @@ footer {
         <div class="panel-source">HN · BBC Business</div>
       </div>
       <span class="badge badge-gray" id="b-vn">—</span>
+      <button class="panel-refresh-btn" type="button" data-panel-id="vn" aria-label="Refresh panel">
+        <span class="panel-refresh-icon">↻</span>
+      </button>
     </div>
     <div class="panel-body" id="p-vn"></div>
   </div>
@@ -405,6 +439,8 @@ const PANELS = [
     keys: ['vietnam', 'vnd', 'dong', 'hanoi', 'ho chi minh', 'gdp', 'inflation', 'trade', 'export', 'manufacturing', 'fdi', 'southeast asia', 'asean', 'emerging market', 'asia pacific', 'supply chain', 'tariff'],
   },
 ];
+
+const PANEL_BY_ID = Object.fromEntries(PANELS.map(p => [p.id, p]));
 
 function ago(str) {
   const d = new Date(str);
@@ -538,6 +574,37 @@ async function loadAll() {
   spin.classList.remove('spin');
 }
 
+function wirePanelRefreshButtons() {
+  document.querySelectorAll('.panel-refresh-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-panel-id');
+      const cfg = PANEL_BY_ID[id];
+      if (!cfg) return;
+      if (btn.disabled) return;
+
+      const icon = btn.querySelector('.panel-refresh-icon');
+      btn.disabled = true;
+      icon?.classList.add('spin');
+
+      const body = document.getElementById('p-' + cfg.id);
+      if (body) body.innerHTML = skelHTML();
+      const b = document.getElementById(cfg.badge);
+      if (b) {
+        b.textContent = '—';
+        b.className = 'badge badge-gray';
+      }
+
+      try {
+        await loadPanel(cfg);
+      } finally {
+        icon?.classList.remove('spin');
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+wirePanelRefreshButtons();
 loadAll();
 </script>
 </body>
