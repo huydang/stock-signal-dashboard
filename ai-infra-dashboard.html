@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Signal Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f4f0;
+  color: #1a1a1a;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+header {
+  background: #fff;
+  border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left h1 { font-size: 15px; font-weight: 500; }
+.header-left p  { font-size: 12px; color: #999; margin-top: 1px; }
+
+.refresh-btn {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.refresh-btn:hover { opacity: 0.75; }
+.refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.spin { display: inline-block; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 680px) {
+  main { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 0.5px solid rgba(0,0,0,0.09);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 0.8rem 1rem;
+  border-bottom: 0.5px solid rgba(0,0,0,0.07);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.panel-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.icon-red    { background: #FCEBEB; }
+.icon-blue   { background: #E6F1FB; }
+.icon-amber  { background: #FAEEDA; }
+.icon-teal   { background: #E1F5EE; }
+.icon-purple { background: #EEEDFE; }
+
+.panel-title   { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.panel-source  { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+.badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-warn   { background: #FAEEDA; color: #854F0B; }
+.badge-ok     { background: #EAF3DE; color: #3B6D11; }
+.badge-alert  { background: #FCEBEB; color: #A32D2D; }
+.badge-blue   { background: #E6F1FB; color: #185FA5; }
+.badge-gray   { background: #F1EFE8; color: #5F5E5A; }
+
+.panel-body { flex: 1; }
+
+.feed-item {
+  padding: 0.65rem 1rem;
+  border-bottom: 0.5px solid rgba(0,0,0,0.055);
+}
+.feed-item:last-child { border-bottom: none; }
+
+.feed-item a {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-decoration: none;
+  line-height: 1.45;
+  display: block;
+}
+.feed-item a:hover { color: #185FA5; }
+
+.feed-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 3px;
+}
+.feed-src  { font-size: 11px; color: #888; font-weight: 500; }
+.feed-time { font-size: 11px; color: #bbb; }
+
+.skel-wrap { padding: 0.65rem 1rem; border-bottom: 0.5px solid rgba(0,0,0,0.055); }
+.skel {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0ede8 25%, #e5e2dc 50%, #f0ede8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+  margin-bottom: 6px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.panel-msg { padding: 1rem; font-size: 12.5px; color: #999; }
+.panel-error { color: #A32D2D; }
+.panel-lowsig { font-size: 11px; color: #BA7517; padding: 0.4rem 1rem 0; }
+
+.signal-panel { grid-column: 1 / -1; }
+
+.signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 680px) {
+  .signal-grid { grid-template-columns: 1fr; }
+  .signal-panel { grid-column: 1; }
+}
+
+.signal-item {
+  padding: 0.75rem 1rem;
+  border-right: 0.5px solid rgba(0,0,0,0.07);
+  border-bottom: 0.5px solid rgba(0,0,0,0.07);
+}
+.signal-item:nth-child(3n) { border-right: none; }
+.signal-item:nth-last-child(-n+3) { border-bottom: none; }
+
+.signal-name { font-size: 12px; color: #888; margin-bottom: 3px; }
+.signal-val  { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.signal-note { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+.dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  position: relative; top: -1px;
+}
+.dot-red   { background: #E24B4A; }
+.dot-green { background: #639922; }
+.dot-amber { background: #BA7517; }
+.dot-gray  { background: #c8c6c0; }
+
+footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 11px;
+  color: #ccc;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>AI Infra Signal Dashboard</h1>
+    <p id="last-updated">Click Refresh to load</p>
+  </div>
+  <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
+    <span id="spin-icon">↻</span> Refresh all
+  </button>
+</header>
+
+<main>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-red">⚡</div>
+      <div>
+        <div class="panel-title">Grid &amp; policy</div>
+        <div class="panel-source">HN · energylivenews · renewablesnow</div>
+      </div>
+      <span class="badge badge-gray" id="b-grid">—</span>
+    </div>
+    <div class="panel-body" id="p-grid"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-blue">🏗</div>
+      <div>
+        <div class="panel-title">Hyperscaler capex</div>
+        <div class="panel-source">HN · Ars Technica · The Verge</div>
+      </div>
+      <span class="badge badge-gray" id="b-hyper">—</span>
+    </div>
+    <div class="panel-body" id="p-hyper"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-amber">📊</div>
+      <div>
+        <div class="panel-title">Power infra stocks</div>
+        <div class="panel-source">HN · MarketWatch · Seeking Alpha</div>
+      </div>
+      <span class="badge badge-gray" id="b-stocks">—</span>
+    </div>
+    <div class="panel-body" id="p-stocks"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-teal">🔬</div>
+      <div>
+        <div class="panel-title">Semiconductor ETFs</div>
+        <div class="panel-source">HN · MarketWatch · Seeking Alpha</div>
+      </div>
+      <span class="badge badge-gray" id="b-semi">—</span>
+    </div>
+    <div class="panel-body" id="p-semi"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-purple">🪨</div>
+      <div>
+        <div class="panel-title">Commodities &amp; supply</div>
+        <div class="panel-source">HN · energy-storage.news · renewablesnow</div>
+      </div>
+      <span class="badge badge-gray" id="b-commodity">—</span>
+    </div>
+    <div class="panel-body" id="p-commodity"></div>
+  </div>
+
+  <div class="panel signal-panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-red">🚨</div>
+      <div>
+        <div class="panel-title">Key signals — manual checklist</div>
+        <div class="panel-source">These require human judgment, not just headlines</div>
+      </div>
+    </div>
+    <div class="signal-grid">
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-amber"></span>PJM queue GW total</div>
+        <div class="signal-val">~2,600 GW active</div>
+        <div class="signal-note">Watch: growing = bad. Check pjm.com monthly</div>
+      </div>
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-amber"></span>Transformer lead times</div>
+        <div class="signal-val">18–24 months typical</div>
+        <div class="signal-note">ABB / Eaton earnings. Extension = stress signal</div>
+      </div>
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-green"></span>Bloom Energy backlog</div>
+        <div class="signal-val">+135% YoY (last Q)</div>
+        <div class="signal-note">Deceleration = on-site power demand slowing</div>
+      </div>
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-green"></span>Vertiv revenue guidance</div>
+        <div class="signal-val">Watch quarterly</div>
+        <div class="signal-note">Leads chip demand by 2–3 quarters</div>
+      </div>
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-amber"></span>Hyperscaler language</div>
+        <div class="signal-val">Watch earnings calls</div>
+        <div class="signal-note">"Subject to grid availability" = warning flag</div>
+      </div>
+      <div class="signal-item">
+        <div class="signal-name"><span class="dot dot-green"></span>SOXX vs SMH divergence</div>
+        <div class="signal-val">SOXX +73% YTD</div>
+        <div class="signal-note">SOXX lagging SMH = mid-cap softness signal</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>Feeds: hnrss.org · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · seekingalpha.com · marketwatch.com · via rss2json.com · Not financial advice</footer>
+
+<script>
+const R2J = 'https://api.rss2json.com/v1/api.json?count=25&rss_url=';
+
+const PANELS = [
+  {
+    id: 'grid', badge: 'b-grid',
+    badgeTxt: 'Watch', badgeCls: 'badge-warn',
+    feeds: [
+      'https://hnrss.org/newest?q=power+grid&points=10',
+      'https://hnrss.org/newest?q=PJM+OR+FERC&points=5',
+      'https://hnrss.org/newest?q=data+center+power&points=20',
+      'https://energylivenews.com/feed/',
+      'https://renewablesnow.com/news/feed/',
+    ],
+    keys: ['grid','pjm','ferc','interconnect','permit','transmission','power','utility','substation','transformer','energy','electric','megawatt','gigawatt','nuclear','data center','generation','renewable'],
+  },
+  {
+    id: 'hyper', badge: 'b-hyper',
+    badgeTxt: 'Active', badgeCls: 'badge-blue',
+    feeds: [
+      'https://hnrss.org/newest?q=Microsoft+data+center&points=30',
+      'https://hnrss.org/newest?q=Google+AI+infrastructure&points=30',
+      'https://hnrss.org/newest?q=Amazon+AWS+GPU&points=20',
+      'https://hnrss.org/newest?q=hyperscaler+OR+AI+capex&points=10',
+      'https://feeds.arstechnica.com/arstechnica/technology-lab',
+      'https://www.theverge.com/rss/index.xml',
+    ],
+    keys: ['microsoft','google','amazon','aws','oracle','meta','data center','ai infrastructure','capex','cloud','gpu','hyperscaler','openai','anthropic','nvidia','power','server','rack','buildout'],
+  },
+  {
+    id: 'stocks', badge: 'b-stocks',
+    badgeTxt: 'Live', badgeCls: 'badge-ok',
+    feeds: [
+      'https://hnrss.org/newest?q=Vertiv+OR+Eaton+power&points=5',
+      'https://hnrss.org/newest?q=liquid+cooling+data+center&points=10',
+      'https://seekingalpha.com/market-news/rss.xml',
+      'https://feeds.marketwatch.com/marketwatch/topstories/',
+    ],
+    keys: ['vertiv','eaton','bloom energy','smci','supermicro','cooling','liquid cool','power infrastructure','transformer','data center','vrt','etn','bloom','semiconductor equipment','power supply'],
+  },
+  {
+    id: 'semi', badge: 'b-semi',
+    badgeTxt: 'ATH zone', badgeCls: 'badge-blue',
+    feeds: [
+      'https://hnrss.org/newest?q=semiconductor+chip+AI&points=20',
+      'https://hnrss.org/newest?q=NVIDIA+OR+AMD+OR+Broadcom&points=30',
+      'https://hnrss.org/newest?q=SOXX+OR+SMH+semiconductor+ETF&points=5',
+      'https://seekingalpha.com/market-news/rss.xml',
+      'https://feeds.marketwatch.com/marketwatch/topstories/',
+    ],
+    keys: ['soxx','smh','semiconductor','chip','nvidia','amd','micron','broadcom','tsmc','intel','sox','etf','gpu','ai chip','hbm','memory','wafer','fab','foundry'],
+  },
+  {
+    id: 'commodity', badge: 'b-commodity',
+    badgeTxt: 'Stress', badgeCls: 'badge-warn',
+    feeds: [
+      'https://hnrss.org/newest?q=copper+supply+price&points=10',
+      'https://hnrss.org/newest?q=transformer+shortage&points=5',
+      'https://energy-storage.news/feed/',
+      'https://renewablesnow.com/news/feed/',
+      'https://energylivenews.com/feed/',
+    ],
+    keys: ['copper','transformer','aluminum','steel','commodity','supply chain','shortage','lead time','mining','raw material','energy storage','battery','grid equipment','substation','materials','critical mineral'],
+  },
+];
+
+function ago(str) {
+  const d = new Date(str);
+  if (isNaN(d)) return '';
+  const s = Math.floor((Date.now() - d) / 1000);
+  if (s < 3600)  return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+function srcLabel(url) {
+  try {
+    const h = new URL(url).hostname.replace('www.','');
+    if (h.includes('ycombinator')) return 'Hacker News';
+    if (h.includes('arstechnica')) return 'Ars Technica';
+    if (h.includes('theverge'))    return 'The Verge';
+    if (h.includes('seekingalpha'))return 'Seeking Alpha';
+    if (h.includes('marketwatch')) return 'MarketWatch';
+    if (h.includes('energylive'))  return 'Energy Live News';
+    if (h.includes('renewables'))  return 'Renewables Now';
+    if (h.includes('energy-storage')) return 'Energy Storage News';
+    return h.split('.')[0];
+  } catch { return ''; }
+}
+
+function scoreItem(item, keys) {
+  const t = ((item.title||'') + ' ' + (item.description||'')).toLowerCase();
+  return keys.reduce((n, k) => n + (t.includes(k) ? 1 : 0), 0);
+}
+
+function renderItem(i) {
+  return `<div class="feed-item">
+    <a href="${i.link||'#'}" target="_blank" rel="noopener noreferrer">${(i.title||'').trim()}</a>
+    <div class="feed-meta">
+      <span class="feed-src">${srcLabel(i.link||'')}</span>
+      <span class="feed-time">${ago(i.pubDate)}</span>
+    </div>
+  </div>`;
+}
+
+function skelHTML() {
+  return ['80%','68%','75%','62%'].map(w =>
+    `<div class="skel-wrap"><div class="skel" style="width:${w}"></div><div class="skel" style="width:35%"></div></div>`
+  ).join('');
+}
+
+async function fetchFeed(url) {
+  const r = await fetch(R2J + encodeURIComponent(url), { signal: AbortSignal.timeout(9000) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  return Array.isArray(d.items) ? d.items : [];
+}
+
+async function loadPanel(cfg) {
+  const el    = document.getElementById('p-' + cfg.id);
+  const badge = document.getElementById(cfg.badge);
+
+  el.innerHTML = skelHTML();
+
+  try {
+    const settled = await Promise.allSettled(cfg.feeds.map(fetchFeed));
+    let items = [];
+    settled.forEach(r => { if (r.status === 'fulfilled') items = items.concat(r.value); });
+
+    // dedupe
+    const seen = new Set();
+    items = items.filter(i => {
+      if (!i.title) return false;
+      const k = i.title.trim().toLowerCase().slice(0, 80);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+
+    const scored = items
+      .map(i => ({ ...i, _s: scoreItem(i, cfg.keys) }))
+      .filter(i => i._s > 0)
+      .sort((a, b) => b._s - a._s || new Date(b.pubDate) - new Date(a.pubDate))
+      .slice(0, 6);
+
+    if (scored.length > 0) {
+      el.innerHTML = scored.map(renderItem).join('');
+      badge.textContent = cfg.badgeTxt;
+      badge.className = 'badge ' + cfg.badgeCls;
+      return;
+    }
+
+    // fallback: most recent without keyword filter
+    const recent = items
+      .filter(i => i.title)
+      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+      .slice(0, 5);
+
+    if (recent.length > 0) {
+      el.innerHTML = '<div class="panel-lowsig">No keyword matches — showing most recent</div>'
+        + recent.map(renderItem).join('');
+      badge.textContent = 'Low signal';
+      badge.className = 'badge badge-gray';
+    } else {
+      el.innerHTML = '<div class="panel-msg panel-error">Feeds returned no items — try refreshing</div>';
+      badge.textContent = 'Empty';
+      badge.className = 'badge badge-alert';
+    }
+
+  } catch (e) {
+    el.innerHTML = '<div class="panel-msg panel-error">Feed error — check your connection</div>';
+    badge.textContent = 'Error';
+    badge.className = 'badge badge-alert';
+  }
+}
+
+async function loadAll() {
+  const btn  = document.getElementById('refresh-btn');
+  const spin = document.getElementById('spin-icon');
+  btn.disabled = true;
+  spin.classList.add('spin');
+  document.getElementById('last-updated').textContent = 'Loading…';
+
+  PANELS.forEach(cfg => {
+    document.getElementById('p-' + cfg.id).innerHTML = skelHTML();
+    const b = document.getElementById(cfg.badge);
+    b.textContent = '—';
+    b.className = 'badge badge-gray';
+  });
+
+  await Promise.allSettled(PANELS.map(loadPanel));
+
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    'Updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  btn.disabled = false;
+  spin.classList.remove('spin');
+}
+
+loadAll();
+</script>
+</body>
+</html>
