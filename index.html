@@ -277,7 +277,7 @@ footer {
       <div class="panel-icon icon-orange">🟧</div>
       <div>
         <div class="panel-title">Vietnam macro</div>
-        <div class="panel-source">HN · Vietnam Investment Review</div>
+        <div class="panel-source">HN · BBC Business</div>
       </div>
       <span class="badge badge-gray" id="b-vn">—</span>
     </div>
@@ -328,7 +328,7 @@ footer {
 
 </main>
 
-<footer>Feeds: hnrss.org · vir.com.vn · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · Not financial advice</footer>
+<footer>Feeds: hnrss.org · bbc.co.uk · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · Not financial advice</footer>
 
 <script>
 // All feeds go through your own Vercel proxy at /api/feed?url=...
@@ -398,10 +398,11 @@ const PANELS = [
     id: 'vn', badge: 'b-vn',
     badgeTxt: 'Macro', badgeCls: 'badge-blue',
     feeds: [
-      'https://hnrss.org/newest?q=Vietnam+economy&points=5',
-      'https://www.vir.com.vn/rss/news.rss',
+      'https://hnrss.org/newest?q=Vietnam&points=1',
+      'https://hnrss.org/newest?q=Southeast+Asia+economy&points=10',
+      'https://feeds.bbci.co.uk/news/business/rss.xml',
     ],
-    keys: ['vietnam', 'vnd', 'dong', 'hanoi', 'ho chi minh', 'gdp', 'inflation', 'trade', 'export', 'manufacturing', 'fdi'],
+    keys: ['vietnam', 'vnd', 'dong', 'hanoi', 'ho chi minh', 'gdp', 'inflation', 'trade', 'export', 'manufacturing', 'fdi', 'southeast asia', 'asean', 'emerging market', 'asia pacific', 'supply chain', 'tariff'],
   },
 ];
 
@@ -421,10 +422,10 @@ function srcLabel(url) {
     if (h.includes('arstechnica'))  return 'Ars Technica';
     if (h.includes('theverge'))     return 'The Verge';
     if (h.includes('marketwatch'))  return 'MarketWatch';
+    if (h.includes('bbc.co.uk'))    return 'BBC';
     if (h.includes('energylive'))   return 'Energy Live News';
     if (h.includes('renewables'))   return 'Renewables Now';
     if (h.includes('energy-storage')) return 'Energy Storage News';
-    if (h === 'vir.com.vn')         return 'Vietnam Investment Review';
     return h.split('.')[0];
   } catch { return ''; }
 }
