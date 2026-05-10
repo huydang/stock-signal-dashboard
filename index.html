@@ -31,6 +31,41 @@ header {
 .header-left h1 { font-size: 15px; font-weight: 500; }
 .header-left p  { font-size: 12px; color: #999; margin-top: 1px; }
 
+.tabs {
+  margin-top: 8px;
+  display: inline-flex;
+  gap: 6px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.04);
+  border: 0.5px solid rgba(0,0,0,0.06);
+}
+
+.tab-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #777;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.tab-btn[aria-selected="true"] {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08);
+}
+
+.tab-btn:focus-visible {
+  outline: 2px solid rgba(24,95,165,0.35);
+  outline-offset: 2px;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: contents; }
+
 .refresh-btn {
   background: #1a1a1a;
   color: #fff;
@@ -97,6 +132,7 @@ main {
 .icon-blue   { background: #E6F1FB; }
 .icon-amber  { background: #FAEEDA; }
 .icon-orange { background: #FFE6D5; }
+.icon-gray   { background: #F1EFE8; }
 .icon-teal   { background: #E1F5EE; }
 .icon-purple { background: #EEEDFE; }
 
@@ -220,6 +256,10 @@ footer {
   <div class="header-left">
     <h1>AI Infra Signal Dashboard</h1>
     <p id="last-updated">Click Refresh to load</p>
+    <div class="tabs" role="tablist" aria-label="Dashboard tabs">
+      <button class="tab-btn" type="button" role="tab" id="tabbtn-signals" aria-controls="tab-signals" aria-selected="true" data-tab="signals">Signals</button>
+      <button class="tab-btn" type="button" role="tab" id="tabbtn-macro" aria-controls="tab-macro" aria-selected="false" data-tab="macro">Macro</button>
+    </div>
   </div>
   <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
     <span id="spin-icon">↻</span> Refresh all
@@ -228,6 +268,7 @@ footer {
 
 <main>
 
+  <section id="tab-signals" class="tab-content active" role="tabpanel" aria-labelledby="tabbtn-signals">
   <div class="panel">
     <div class="panel-header">
       <div class="panel-icon icon-red">⚡</div>
@@ -359,6 +400,23 @@ footer {
       </div>
     </div>
   </div>
+
+  </section>
+
+  <section id="tab-macro" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-macro">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-gray">📈</div>
+        <div>
+          <div class="panel-title">ICI Fund Flows</div>
+          <div class="panel-source">Coming soon</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="panel-msg">Coming soon</div>
+      </div>
+    </div>
+  </section>
 
 </main>
 
@@ -604,7 +662,28 @@ function wirePanelRefreshButtons() {
   });
 }
 
+function wireTabs() {
+  const btnSignals = document.getElementById('tabbtn-signals');
+  const btnMacro   = document.getElementById('tabbtn-macro');
+  const tabSignals = document.getElementById('tab-signals');
+  const tabMacro   = document.getElementById('tab-macro');
+  if (!btnSignals || !btnMacro || !tabSignals || !tabMacro) return;
+
+  function setTab(name) {
+    const isSignals = name === 'signals';
+    btnSignals.setAttribute('aria-selected', String(isSignals));
+    btnMacro.setAttribute('aria-selected', String(!isSignals));
+    tabSignals.classList.toggle('active', isSignals);
+    tabMacro.classList.toggle('active', !isSignals);
+  }
+
+  [btnSignals, btnMacro].forEach(btn => {
+    btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab')));
+  });
+}
+
 wirePanelRefreshButtons();
+wireTabs();
 loadAll();
 </script>
 </body>
