@@ -3,9 +3,10 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=3600');
 
   try {
-    const r = await fetch('https://www.ici.org/research/stats/combined_flows', {
+    const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent('https://www.ici.org/research/stats/combined_flows');
+    const r = await fetch(proxyUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; research-dashboard/1.0)' },
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(12000),
     });
 
     if (!r.ok) throw new Error('ICI fetch failed: ' + r.status);
