@@ -111,11 +111,11 @@ main {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.badge-warn   { background: #FAEEDA; color: #854F0B; }
-.badge-ok     { background: #EAF3DE; color: #3B6D11; }
-.badge-alert  { background: #FCEBEB; color: #A32D2D; }
-.badge-blue   { background: #E6F1FB; color: #185FA5; }
-.badge-gray   { background: #F1EFE8; color: #5F5E5A; }
+.badge-warn  { background: #FAEEDA; color: #854F0B; }
+.badge-ok    { background: #EAF3DE; color: #3B6D11; }
+.badge-alert { background: #FCEBEB; color: #A32D2D; }
+.badge-blue  { background: #E6F1FB; color: #185FA5; }
+.badge-gray  { background: #F1EFE8; color: #5F5E5A; }
 
 .panel-body { flex: 1; }
 
@@ -135,11 +135,7 @@ main {
 }
 .feed-item a:hover { color: #185FA5; }
 
-.feed-meta {
-  display: flex;
-  gap: 8px;
-  margin-top: 3px;
-}
+.feed-meta { display: flex; gap: 8px; margin-top: 3px; }
 .feed-src  { font-size: 11px; color: #888; font-weight: 500; }
 .feed-time { font-size: 11px; color: #bbb; }
 
@@ -154,8 +150,8 @@ main {
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-.panel-msg { padding: 1rem; font-size: 12.5px; color: #999; }
-.panel-error { color: #A32D2D; }
+.panel-msg    { padding: 1rem; font-size: 12.5px; color: #999; }
+.panel-error  { color: #A32D2D; }
 .panel-lowsig { font-size: 11px; color: #BA7517; padding: 0.4rem 1rem 0; }
 
 .signal-panel { grid-column: 1 / -1; }
@@ -175,7 +171,7 @@ main {
   border-right: 0.5px solid rgba(0,0,0,0.07);
   border-bottom: 0.5px solid rgba(0,0,0,0.07);
 }
-.signal-item:nth-child(3n) { border-right: none; }
+.signal-item:nth-child(3n)      { border-right: none; }
 .signal-item:nth-last-child(-n+3) { border-bottom: none; }
 
 .signal-name { font-size: 12px; color: #888; margin-bottom: 3px; }
@@ -190,10 +186,8 @@ main {
   vertical-align: middle;
   position: relative; top: -1px;
 }
-.dot-red   { background: #E24B4A; }
 .dot-green { background: #639922; }
 .dot-amber { background: #BA7517; }
-.dot-gray  { background: #c8c6c0; }
 
 footer {
   text-align: center;
@@ -321,10 +315,11 @@ footer {
 
 </main>
 
-<footer>Feeds: hnrss.org · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · seekingalpha.com · marketwatch.com · via rss2json.com · Not financial advice</footer>
+<footer>Feeds: hnrss.org · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · Not financial advice</footer>
 
 <script>
-const R2J = 'https://api.rss2json.com/v1/api.json?count=25&rss_url=';
+// All feeds go through your own Vercel proxy at /api/feed?url=...
+const PROXY = '/api/feed?url=';
 
 const PANELS = [
   {
@@ -346,7 +341,7 @@ const PANELS = [
       'https://hnrss.org/newest?q=Microsoft+data+center&points=30',
       'https://hnrss.org/newest?q=Google+AI+infrastructure&points=30',
       'https://hnrss.org/newest?q=Amazon+AWS+GPU&points=20',
-      'https://hnrss.org/newest?q=hyperscaler+OR+AI+capex&points=10',
+      'https://hnrss.org/newest?q=AI+capex+OR+hyperscaler&points=10',
       'https://feeds.arstechnica.com/arstechnica/technology-lab',
       'https://www.theverge.com/rss/index.xml',
     ],
@@ -358,7 +353,7 @@ const PANELS = [
     feeds: [
       'https://hnrss.org/newest?q=Vertiv+OR+Eaton+power&points=5',
       'https://hnrss.org/newest?q=liquid+cooling+data+center&points=10',
-      'https://seekingalpha.com/market-news/rss.xml',
+      'https://hnrss.org/newest?q=Bloom+Energy+fuel+cell&points=5',
       'https://feeds.marketwatch.com/marketwatch/topstories/',
     ],
     keys: ['vertiv','eaton','bloom energy','smci','supermicro','cooling','liquid cool','power infrastructure','transformer','data center','vrt','etn','bloom','semiconductor equipment','power supply'],
@@ -369,8 +364,7 @@ const PANELS = [
     feeds: [
       'https://hnrss.org/newest?q=semiconductor+chip+AI&points=20',
       'https://hnrss.org/newest?q=NVIDIA+OR+AMD+OR+Broadcom&points=30',
-      'https://hnrss.org/newest?q=SOXX+OR+SMH+semiconductor+ETF&points=5',
-      'https://seekingalpha.com/market-news/rss.xml',
+      'https://hnrss.org/newest?q=SOXX+OR+SMH+OR+semiconductor+ETF&points=5',
       'https://feeds.marketwatch.com/marketwatch/topstories/',
     ],
     keys: ['soxx','smh','semiconductor','chip','nvidia','amd','micron','broadcom','tsmc','intel','sox','etf','gpu','ai chip','hbm','memory','wafer','fab','foundry'],
@@ -379,8 +373,8 @@ const PANELS = [
     id: 'commodity', badge: 'b-commodity',
     badgeTxt: 'Stress', badgeCls: 'badge-warn',
     feeds: [
-      'https://hnrss.org/newest?q=copper+supply+price&points=10',
-      'https://hnrss.org/newest?q=transformer+shortage&points=5',
+      'https://hnrss.org/newest?q=copper+supply+OR+copper+price&points=10',
+      'https://hnrss.org/newest?q=transformer+shortage+OR+grid+equipment&points=5',
       'https://energy-storage.news/feed/',
       'https://renewablesnow.com/news/feed/',
       'https://energylivenews.com/feed/',
@@ -401,13 +395,12 @@ function ago(str) {
 function srcLabel(url) {
   try {
     const h = new URL(url).hostname.replace('www.','');
-    if (h.includes('ycombinator')) return 'Hacker News';
-    if (h.includes('arstechnica')) return 'Ars Technica';
-    if (h.includes('theverge'))    return 'The Verge';
-    if (h.includes('seekingalpha'))return 'Seeking Alpha';
-    if (h.includes('marketwatch')) return 'MarketWatch';
-    if (h.includes('energylive'))  return 'Energy Live News';
-    if (h.includes('renewables'))  return 'Renewables Now';
+    if (h.includes('ycombinator'))  return 'Hacker News';
+    if (h.includes('arstechnica'))  return 'Ars Technica';
+    if (h.includes('theverge'))     return 'The Verge';
+    if (h.includes('marketwatch'))  return 'MarketWatch';
+    if (h.includes('energylive'))   return 'Energy Live News';
+    if (h.includes('renewables'))   return 'Renewables Now';
     if (h.includes('energy-storage')) return 'Energy Storage News';
     return h.split('.')[0];
   } catch { return ''; }
@@ -435,7 +428,7 @@ function skelHTML() {
 }
 
 async function fetchFeed(url) {
-  const r = await fetch(R2J + encodeURIComponent(url), { signal: AbortSignal.timeout(9000) });
+  const r = await fetch(PROXY + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const d = await r.json();
   return Array.isArray(d.items) ? d.items : [];
@@ -445,14 +438,12 @@ async function loadPanel(cfg) {
   const el    = document.getElementById('p-' + cfg.id);
   const badge = document.getElementById(cfg.badge);
 
-  el.innerHTML = skelHTML();
-
   try {
     const settled = await Promise.allSettled(cfg.feeds.map(fetchFeed));
     let items = [];
     settled.forEach(r => { if (r.status === 'fulfilled') items = items.concat(r.value); });
 
-    // dedupe
+    // dedupe by title
     const seen = new Set();
     items = items.filter(i => {
       if (!i.title) return false;
@@ -487,13 +478,13 @@ async function loadPanel(cfg) {
       badge.textContent = 'Low signal';
       badge.className = 'badge badge-gray';
     } else {
-      el.innerHTML = '<div class="panel-msg panel-error">Feeds returned no items — try refreshing</div>';
+      el.innerHTML = '<div class="panel-msg panel-error">No items returned — try refreshing</div>';
       badge.textContent = 'Empty';
       badge.className = 'badge badge-alert';
     }
 
   } catch (e) {
-    el.innerHTML = '<div class="panel-msg panel-error">Feed error — check your connection</div>';
+    el.innerHTML = `<div class="panel-msg panel-error">Feed error: ${e.message}</div>`;
     badge.textContent = 'Error';
     badge.className = 'badge badge-alert';
   }
