@@ -1,4 +1,3 @@
-cat > api/feed.js << 'EOF'
 export default async function handler(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'missing url' });
@@ -33,4 +32,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 }
-EOF
