@@ -184,38 +184,49 @@ main {
 .panel-error  { color: #A32D2D; }
 .panel-lowsig { font-size: 11px; color: #BA7517; padding: 0.4rem 1rem 0; }
 
-/* ICI table styles */
-.ici-wrap { padding: 0.5rem 0 0; overflow-x: auto; }
-.ici-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 12px;
+/* NAAIM panel styles */
+.naaim-hero {
+  padding: 1.25rem 1rem 0.75rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  border-bottom: 0.5px solid rgba(0,0,0,0.06);
 }
-.ici-table th {
-  padding: 6px 10px; text-align: right;
+.naaim-stat { display: flex; flex-direction: column; gap: 2px; }
+.naaim-label { font-size: 11px; color: #999; }
+.naaim-value {
+  font-size: 32px; font-weight: 500; line-height: 1;
+}
+.naaim-value.val-green { color: #3B6D11; }
+.naaim-value.val-amber { color: #854F0B; }
+.naaim-value.val-red   { color: #A32D2D; }
+.naaim-sub-value { font-size: 20px; font-weight: 500; color: #444; line-height: 1; }
+.naaim-posted { font-size: 11px; color: #bbb; margin-top: 4px; }
+
+.naaim-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.naaim-table th {
+  padding: 6px 1rem; text-align: left;
   font-size: 11px; font-weight: 500; color: #888;
   border-bottom: 0.5px solid rgba(0,0,0,0.08);
-  white-space: nowrap;
 }
-.ici-table th:first-child { text-align: left; }
-.ici-table td {
-  padding: 5px 10px; text-align: right;
+.naaim-table th:last-child { text-align: right; }
+.naaim-table td {
+  padding: 5px 1rem;
   border-bottom: 0.5px solid rgba(0,0,0,0.05);
-  white-space: nowrap; color: #444;
+  color: #444; font-size: 12px;
 }
-.ici-table td:first-child { text-align: left; color: #1a1a1a; }
-.ici-table tr:last-child td { border-bottom: none; }
-.ici-table tr.row-bold td { font-weight: 500; color: #1a1a1a; }
-.ici-table td.indented { padding-left: 22px; color: #666; font-size: 11.5px; }
-.ici-table td.val-neg  { color: #A32D2D; }
-.ici-table td.val-pos  { color: #3B6D11; }
-.ici-table th.col-latest,
-.ici-table td.col-latest { background: rgba(24,95,165,0.04); }
-.ici-source {
-  padding: 6px 10px 8px;
+.naaim-table td:last-child { text-align: right; font-weight: 500; }
+.naaim-table tr:last-child td { border-bottom: none; }
+.naaim-table tr:first-child td { color: #1a1a1a; }
+.td-green { color: #3B6D11 !important; }
+.td-amber { color: #854F0B !important; }
+.td-red   { color: #A32D2D !important; }
+.naaim-source {
+  padding: 6px 1rem 8px;
   font-size: 11px; color: #bbb; text-align: right;
 }
-.ici-source a { color: #bbb; text-decoration: none; }
-.ici-source a:hover { color: #185FA5; }
+.naaim-source a { color: #bbb; text-decoration: none; }
+.naaim-source a:hover { color: #185FA5; }
 
 .signal-panel { grid-column: 1 / -1; }
 .signal-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
@@ -242,7 +253,6 @@ main {
 .dot-green { background: #639922; }
 .dot-amber { background: #BA7517; }
 
-/* Macro tab full-width panels */
 .macro-full { grid-column: 1 / -1; }
 
 footer { text-align: center; padding: 1.5rem 1rem; font-size: 11px; color: #ccc; }
@@ -335,7 +345,6 @@ footer { text-align: center; padding: 1.5rem 1rem; font-size: 11px; color: #ccc;
   </div>
 
   <div class="panel">
-    <div class="panel-icon icon-orange" style="display:none"></div>
     <div class="panel-header">
       <div class="panel-icon icon-orange">🟧</div>
       <div>
@@ -397,26 +406,26 @@ footer { text-align: center; padding: 1.5rem 1rem; font-size: 11px; color: #ccc;
 
   <!-- TEMPLATE: Every panel must include a per-panel refresh button in the header.
        For macro panels, use data-macro-panel="YOUR_ID" on the button.
-       Copy this ICI panel as the starting template for new macro panels. -->
+       Copy this NAAIM panel as the starting template for new macro panels. -->
 
   <div class="panel macro-full">
     <div class="panel-header">
-      <div class="panel-icon icon-green">📈</div>
+      <div class="panel-icon icon-blue">📊</div>
       <div>
-        <div class="panel-title">ICI fund flows</div>
-        <div class="panel-source">ici.org · weekly · millions USD</div>
+        <div class="panel-title">NAAIM Exposure Index</div>
+        <div class="panel-source">naaim.org · weekly · active manager equity exposure</div>
       </div>
-      <span class="badge badge-gray" id="b-ici">—</span>
-      <button class="panel-refresh-btn" type="button" data-macro-panel="ici" aria-label="Refresh ICI panel"><span class="panel-refresh-icon">↻</span></button>
+      <span class="badge badge-gray" id="b-naaim">—</span>
+      <button class="panel-refresh-btn" type="button" data-macro-panel="naaim" aria-label="Refresh NAAIM panel"><span class="panel-refresh-icon">↻</span></button>
     </div>
-    <div class="panel-body" id="p-ici"></div>
+    <div class="panel-body" id="p-naaim"></div>
   </div>
 
   </section>
 
 </main>
 
-<footer>Feeds: hnrss.org · bbc.co.uk · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · ici.org · Not financial advice</footer>
+<footer>Feeds: hnrss.org · bbc.co.uk · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · naaim.org · Not financial advice</footer>
 
 <script>
 const PROXY = '/api/feed?url=';
@@ -495,7 +504,7 @@ const PANELS = [
 
 const PANEL_BY_ID = Object.fromEntries(PANELS.map(p => [p.id, p]));
 
-// ── Helpers ──────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────
 function ago(str) {
   const d = new Date(str);
   if (isNaN(d)) return '';
@@ -541,9 +550,18 @@ function skelHTML() {
   ).join('');
 }
 
-function fmtNum(n) {
-  if (n === null || n === undefined) return '—';
-  return new Intl.NumberFormat('en-US').format(n);
+function naaimColor(v) {
+  if (v === null) return '';
+  if (v >= 80) return 'val-green';
+  if (v >= 50) return 'val-amber';
+  return 'val-red';
+}
+
+function naaimTdColor(v) {
+  if (v === null) return '';
+  if (v >= 80) return 'td-green';
+  if (v >= 50) return 'td-amber';
+  return 'td-red';
 }
 
 // ── RSS panel loader ──────────────────────────────────────
@@ -599,62 +617,55 @@ async function loadPanel(cfg) {
   }
 }
 
-// ── ICI Fund Flows loader ─────────────────────────────────
-async function loadICI() {
-  const el    = document.getElementById('p-ici');
-  const badge = document.getElementById('b-ici');
+// ── NAAIM loader ──────────────────────────────────────────
+async function loadNAAIM() {
+  const el    = document.getElementById('p-naaim');
+  const badge = document.getElementById('b-naaim');
   el.innerHTML = skelHTML();
 
   try {
-    const r = await fetch('/api/ici-flows', { signal: AbortSignal.timeout(12000) });
+    const r = await fetch('/api/naaim', { signal: AbortSignal.timeout(12000) });
     const data = await r.json();
-
     if (!r.ok || data.error) throw new Error(data.error || 'API error');
 
-    const { dates, rows } = data;
+    const { current, lastQuarterAvg, postedDate, rows } = data;
 
-    const headerCols = dates.map((d, i) =>
-      `<th class="${i === 0 ? 'col-latest' : ''}">${d}</th>`
+    const tableRows = (rows || []).map((row, i) => `
+      <tr>
+        <td>${row.date || '—'}</td>
+        <td class="${naaimTdColor(row.value)}">${row.value !== null ? row.value.toFixed(2) : '—'}</td>
+      </tr>`
     ).join('');
 
-    const bodyRows = rows.map(row => {
-      const labelCell = row.indent
-        ? `<td class="indented">${row.label}</td>`
-        : `<td>${row.label}</td>`;
-
-      const valCells = row.values.map((v, i) => {
-        const cls = [
-          i === 0 ? 'col-latest' : '',
-          v !== null && v < 0 ? 'val-neg' : '',
-          v !== null && v > 0 ? 'val-pos' : '',
-        ].filter(Boolean).join(' ');
-        return `<td class="${cls}">${fmtNum(v)}</td>`;
-      }).join('');
-
-      return `<tr class="${row.bold ? 'row-bold' : ''}">${labelCell}${valCells}</tr>`;
-    }).join('');
-
     el.innerHTML = `
-      <div class="ici-wrap">
-        <table class="ici-table">
-          <thead>
-            <tr>
-              <th></th>${headerCols}
-            </tr>
-          </thead>
-          <tbody>${bodyRows}</tbody>
-        </table>
-        <div class="ici-source">
-          Source: <a href="https://www.ici.org/research/stats/combined_flows" target="_blank" rel="noopener">ici.org</a>
-          · Updated weekly · Millions USD
+      <div class="naaim-hero">
+        <div class="naaim-stat">
+          <div class="naaim-label">This week</div>
+          <div class="naaim-value ${naaimColor(current)}">${current !== null ? current.toFixed(2) : '—'}</div>
+          <div class="naaim-posted">${postedDate || ''}</div>
         </div>
+        <div class="naaim-stat">
+          <div class="naaim-label">Last quarter avg (Q1)</div>
+          <div class="naaim-sub-value">${lastQuarterAvg !== null ? lastQuarterAvg.toFixed(2) : '—'}</div>
+        </div>
+        <div class="naaim-stat" style="margin-left:auto;font-size:11px;color:#bbb;line-height:1.7;align-self:center;text-align:right">
+          &gt;80 bullish<br>50–80 neutral<br>&lt;50 bearish
+        </div>
+      </div>
+      <table class="naaim-table">
+        <thead><tr><th>Date</th><th>NAAIM number</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div class="naaim-source">
+        Source: <a href="https://naaim.org/programs/naaim-exposure-index/" target="_blank" rel="noopener">naaim.org</a>
+        · Updated weekly on Thursdays
       </div>`;
 
     badge.textContent = 'Weekly';
     badge.className = 'badge badge-blue';
 
   } catch(e) {
-    el.innerHTML = `<div class="panel-msg panel-error">Could not load ICI data: ${e.message}</div>`;
+    el.innerHTML = `<div class="panel-msg panel-error">Could not load NAAIM data: ${e.message}</div>`;
     badge.textContent = 'Error'; badge.className = 'badge badge-alert';
   }
 }
@@ -675,7 +686,7 @@ async function loadAll() {
 
   await Promise.allSettled([
     ...PANELS.map(loadPanel),
-    loadICI(),
+    loadNAAIM(),
   ]);
 
   const now = new Date();
@@ -705,8 +716,8 @@ function wirePanelRefreshButtons() {
             if (b) { b.textContent = '—'; b.className = 'badge badge-gray'; }
             await loadPanel(cfg);
           }
-        } else if (macroId === 'ici') {
-          await loadICI();
+        } else if (macroId === 'naaim') {
+          await loadNAAIM();
         }
       } finally {
         icon?.classList.remove('spin');
