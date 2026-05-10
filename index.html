@@ -96,6 +96,7 @@ main {
 .icon-red    { background: #FCEBEB; }
 .icon-blue   { background: #E6F1FB; }
 .icon-amber  { background: #FAEEDA; }
+.icon-orange { background: #FFE6D5; }
 .icon-teal   { background: #E1F5EE; }
 .icon-purple { background: #EEEDFE; }
 
@@ -271,6 +272,18 @@ footer {
     <div class="panel-body" id="p-commodity"></div>
   </div>
 
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon icon-orange">🟧</div>
+      <div>
+        <div class="panel-title">Vietnam macro</div>
+        <div class="panel-source">HN · Vietnam Investment Review</div>
+      </div>
+      <span class="badge badge-gray" id="b-vn">—</span>
+    </div>
+    <div class="panel-body" id="p-vn"></div>
+  </div>
+
   <div class="panel signal-panel">
     <div class="panel-header">
       <div class="panel-icon icon-red">🚨</div>
@@ -315,7 +328,7 @@ footer {
 
 </main>
 
-<footer>Feeds: hnrss.org · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · Not financial advice</footer>
+<footer>Feeds: hnrss.org · vir.com.vn · energylivenews.com · renewablesnow.com · energy-storage.news · arstechnica.com · theverge.com · Not financial advice</footer>
 
 <script>
 // All feeds go through your own Vercel proxy at /api/feed?url=...
@@ -381,6 +394,15 @@ const PANELS = [
     ],
     keys: ['copper','transformer','aluminum','steel','commodity','supply chain','shortage','lead time','mining','raw material','energy storage','battery','grid equipment','substation','materials','critical mineral'],
   },
+  {
+    id: 'vn', badge: 'b-vn',
+    badgeTxt: 'Macro', badgeCls: 'badge-blue',
+    feeds: [
+      'https://hnrss.org/newest?q=Vietnam+economy&points=5',
+      'https://www.vir.com.vn/rss/news.rss',
+    ],
+    keys: ['vietnam', 'vnd', 'dong', 'hanoi', 'ho chi minh', 'gdp', 'inflation', 'trade', 'export', 'manufacturing', 'fdi'],
+  },
 ];
 
 function ago(str) {
@@ -402,6 +424,7 @@ function srcLabel(url) {
     if (h.includes('energylive'))   return 'Energy Live News';
     if (h.includes('renewables'))   return 'Renewables Now';
     if (h.includes('energy-storage')) return 'Energy Storage News';
+    if (h === 'vir.com.vn')         return 'Vietnam Investment Review';
     return h.split('.')[0];
   } catch { return ''; }
 }
